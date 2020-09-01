@@ -1,21 +1,41 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import TableListPage from './Components/TableListPage'
+import TableDetail from './Components/TableDetail'
+import { StyleSheet } from 'react-native'
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-export default function App() {
+function TableListScreen({ navigation }) {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <TableListPage navigation={navigation} />
+  )
 }
 
+function TableDetailScreen({ route, navigation }) {
+  return (
+    <TableDetail navigation={navigation} route={route} />
+  )
+}
+
+const TableListStack = createStackNavigator();
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  icon: {
+    width: 30,
+    height: 30
+  }
+})
+
+export default class App extends React.Component {
+  render() {
+    return (
+      <NavigationContainer>
+        <TableListStack.Navigator initialRouteName="TableList">
+          <TableListStack.Screen name="TableList" component={TableListScreen} options={{ title: 'Tables' }} />
+          <TableListStack.Screen name="TableDetail" component={TableDetailScreen} options={{ title: 'Détail Table' }} />
+        </TableListStack.Navigator>
+      </NavigationContainer>
+    );
+  }
+
+}
