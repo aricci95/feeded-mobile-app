@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     table_list_container: {
         flex: 1,
         margin: 5,
-        backgroundColor: '#CCC',
+        backgroundColor: '#81c8fb',
     },
     table_list: {
         justifyContent: 'flex-start',
