@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, Text } from 'react-native'
 
 class PreparationListPage extends React.Component {
     constructor(props) {
@@ -9,6 +9,7 @@ class PreparationListPage extends React.Component {
     render() {
         return (
             <View style={styles.main_container}>
+                <Text>TOTO</Text>
             </View>
         )
     }

@@ -1,6 +1,6 @@
 import React from 'react'
-import { StyleSheet, View, Text, FlatList, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native'
-import { getTable, getFoods, addFood } from '../API/client'
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Button } from 'react-native'
+import { getTable, getFoods, addFood, submitFood } from '../API/client'
 import Autocomplete from 'react-native-autocomplete-input'
 import TableFood from './TableFood'
 
@@ -11,7 +11,6 @@ class TableDetail extends React.Component {
         this.state = {
             table: undefined,
             tableFoods: [],
-            isLoading: true,
             foods: [],
             query: '',
         }
@@ -45,9 +44,8 @@ class TableDetail extends React.Component {
         getTable(this.props.route.params.id)
             .then(data => {
                 this.setState({
-                    isLoading: false,
                     table: data,
-                    tableFoods: data.foods,
+                    tableFoods: data.foods ? data.foods : [],
                 })
             })
 
@@ -105,6 +103,18 @@ class TableDetail extends React.Component {
         }
     }
 
+    _displaySubmitButton() {
+        if (this.state.tableFoods && this.state.tableFoods.length > 0) {
+            return (
+                <Button title='Envoyer la suite' onPress={() => {
+                    submitFood(this.state.table).then(table => this.setState({
+                        tableFoods: table.foods
+                    }))
+                }} />
+            )
+        }
+    }
+
     _addFood(food) {
         addFood(this.state.table, food).then(foods => {
             this.setState({ query: '' })
@@ -148,6 +158,7 @@ class TableDetail extends React.Component {
                     />
                 </View>
                 {this._displayTable()}
+                {this._displaySubmitButton()}
             </View>
         )
     }

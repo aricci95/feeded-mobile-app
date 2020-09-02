@@ -75,3 +75,16 @@ export function addFood(table, food) {
         .then(response => response.json())
         .catch((error) => console.error(error));
 }
+
+export function submitFood(table) {
+    const requestOptions = {
+        method: 'POST',
+        headers,
+    };
+
+    const url = API_HOST + '/tables/' + table._id + '/submit';
+
+    return fetch(url, requestOptions)
+        .then(response => response.json())
+        .catch((error) => console.error(error));
+}
