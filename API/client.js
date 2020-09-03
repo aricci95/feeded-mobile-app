@@ -1,4 +1,4 @@
-const API_HOST = 'https://feeded-app.herokuapp.com'
+const API_HOST = 'https://feeded-api.herokuapp.com'
 
 let email = 'aricci95@gmail.com'
 let token = '$2a$10$XJiyb8kTHeKFqgYKrwoOI.U2zo.zkbfPy460YAiJc8nDxauIEq.Du'
@@ -83,6 +83,23 @@ export function submitFood(table) {
     };
 
     const url = API_HOST + '/tables/' + table._id + '/submit';
+
+    return fetch(url, requestOptions)
+        .then(response => response.json())
+        .catch((error) => console.error(error));
+}
+
+export function getPreparations(filter = '') {
+    const requestOptions = {
+        method: 'GET',
+        headers,
+    };
+
+    let url = API_HOST + '/preparations';
+
+    if (filter) {
+        url = url + '?filter=' + filter
+    }
 
     return fetch(url, requestOptions)
         .then(response => response.json())

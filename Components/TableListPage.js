@@ -31,7 +31,7 @@ class TableListPage extends React.Component {
                 <FlatList
                     contentContainerStyle={styles.table_list}
                     data={this.state.tables}
-                    keyExtractor={(item) => item.number.toString()}
+                    keyExtractor={(item, index) => index}
                     extraData={this.state.tables}
                     numColumns={3}
                     renderItem={({ item }) => <TableItem table={item} displayDetailForTable={this._displayDetailForTable} />}
