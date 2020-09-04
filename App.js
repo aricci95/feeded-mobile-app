@@ -84,32 +84,9 @@ export default class App extends React.Component {
   socket = io.connect(SOCKET_URL, {
     transports: ['websocket'],
     reconnectionAttempts: 15 //Nombre de fois qu'il doit réessayer de se connecter
-  });
-
-  componentDidMount() {
-    this.onConnectSocket();
-  }
-
-  onConnectSocket = () => {
-    //Vérification si socket n'est pas à null
-    if (this.socket) {
-      //Ecoute de l'évènement
-      this.socket.on('connect', () => {
-        this.socket.emit('email', 'aricci95@gmail.com'); // Emission d'un message
-
-        //Modification du status de connexion
-        this.setState({
-          connected: true
-        });
-      });
-
-      this.socket.on('message', function (message) {
-        console.log('Le serveur a un message pour vous : ' + message.content);
-      })
-
-      this.socket.emit('message', 'Salut serveur, ça va ?');
-    }
-  }
+  }).on('message', function (message) {
+    console.log('Le serveur a un message pour vous : ' + message.content);
+  })
 
   render() {
     return (

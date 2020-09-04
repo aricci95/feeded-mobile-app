@@ -2,11 +2,18 @@ import React from 'react'
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 
 class PreparationItem extends React.Component {
+    handleDoubleClick = () => {
+        console.log(' Double Long Pressed');
+    };
+
     render() {
         const { preparation } = this.props
 
         return (
-            <TouchableOpacity style={styles.preparation_item_container}>
+            <TouchableOpacity
+                onLongPress={this.handleDoubleClick}
+                style={styles.preparation_item_container}
+            >
                 <View style={styles.preparation_container}>
                     <Text style={styles.title_text}>{'Table ' + preparation.number}</Text>
                     {preparation.foods.map(({ label, id }) => (
