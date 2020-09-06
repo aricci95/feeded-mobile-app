@@ -186,70 +186,67 @@ export default function TableDetail(props) {
     const _triggerRendering = (notification) => {
         console.log(notification)
 
-        if (notification.type === globals.NOTIFICATION_TYPE_FOOD_READY && isLoading === false) {
-            isLoading = true
-            setTimeout(function () {
-                console.log('REFRESH')
-                getTable(props.route.params.id)
-                    .then(data => {
-                        setState({
-                            table: data,
-                            tableFoods: data.foods ? data.foods : [],
-                            query: '',
-                        })
+        if (notification.type === globals.NOTIFICATION_TYPE_FOOD_READY) {
+            console.log('REFRESH')
+            getTable(props.route.params.id)
+                .then(data => {
+                    setState({
+                        table: data,
+                        tableFoods: data.foods ? data.foods : [],
+                        query: '',
                     })
-            }, 5000)
-        }
-    }
-
-        socket.on('notification', _triggerRendering);
-
-        const filteredfoods = findFoods(query, foods);
-        const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
-
-        const _addFoodToTable = (data) => {
-            addFood(state.table, data.item).then(zob => {
-                setState({
-                    table: state.table,
-                    tableFoods: state.tableFoods.concat([data.item]),
-                    query: '',
                 })
-            })
         }
-
-        return (
-            <View style={styles.main_container}>
-                <View style={styles.acContainerStyle}>
-                    <Autocomplete
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        containerStyle={styles.autocompleteContainer}
-                        //data to show in suggestion
-                        data={filteredfoods.length === 1 && comp(query, filteredfoods[0].label) ? [] : filteredfoods}
-                        value={state.query}
-                        /*onchange of the text changing the state of the query which will trigger
-                        the findFilm method to show the suggestions*/
-                        onChangeText={text => setState({
-                            table: state.table,
-                            tableFoods: state.tableFoods,
-                            query: text
-                        })}
-                        placeholder="Ajouter un plat"
-                        renderItem={(data) => (
-                            //you can change the view you want to show in suggestion from here
-                            <TouchableOpacity onPress={() => _addFoodToTable(data)}>
-                                <View style={styles.itemText}>
-                                    <Text style={_displayColor(data.item.type)}>{data.item.type}</Text>
-                                    <Text style={styles.labelItemText}>{data.item.label}</Text>
-                                    <Text style={styles.priceItemText}>{data.item.price + ' €'}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        )}
-                    />
-                </View>
-                {_displayTable()}
-                {_displaySubmitButton()}
-            </View>
-        )
     }
+
+    socket.on('notification', _triggerRendering);
+
+    const filteredfoods = findFoods(query, foods);
+    const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
+
+    const _addFoodToTable = (data) => {
+        addFood(state.table, data.item).then(zob => {
+            setState({
+                table: state.table,
+                tableFoods: state.tableFoods.concat([data.item]),
+                query: '',
+            })
+        })
+    }
+
+    return (
+        <View style={styles.main_container}>
+            <View style={styles.acContainerStyle}>
+                <Autocomplete
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    containerStyle={styles.autocompleteContainer}
+                    //data to show in suggestion
+                    data={filteredfoods.length === 1 && comp(query, filteredfoods[0].label) ? [] : filteredfoods}
+                    value={state.query}
+                    /*onchange of the text changing the state of the query which will trigger
+                    the findFilm method to show the suggestions*/
+                    onChangeText={text => setState({
+                        table: state.table,
+                        tableFoods: state.tableFoods,
+                        query: text
+                    })}
+                    placeholder="Ajouter un plat"
+                    renderItem={(data) => (
+                        //you can change the view you want to show in suggestion from here
+                        <TouchableOpacity onPress={() => _addFoodToTable(data)}>
+                            <View style={styles.itemText}>
+                                <Text style={_displayColor(data.item.type)}>{data.item.type}</Text>
+                                <Text style={styles.labelItemText}>{data.item.label}</Text>
+                                <Text style={styles.priceItemText}>{data.item.price + ' €'}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                />
+            </View>
+            {_displayTable()}
+            {_displaySubmitButton()}
+        </View>
+    )
+}
 
