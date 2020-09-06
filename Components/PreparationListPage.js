@@ -3,8 +3,6 @@ import { StyleSheet, FlatList, View } from 'react-native'
 import { getPreparations } from '../API/client'
 import PreparationItem from './PreparationItem'
 import AppContext from '../contexts/AppContext'
-import io from 'socket.io-client';
-const globals = require('../consts')
 
 const styles = StyleSheet.create({
     main_container: {

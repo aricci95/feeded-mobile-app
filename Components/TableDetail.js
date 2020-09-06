@@ -1,168 +1,9 @@
 import React from 'react'
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Button } from 'react-native'
-import { getTable, getFoods, addFood, submitFood } from '../API/client'
+import { getTable, addFood, submitFood } from '../API/client'
 import Autocomplete from 'react-native-autocomplete-input'
 import TableFood from './TableFood'
-
-class TableDetail extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            table: undefined,
-            tableFoods: [],
-            foods: [],
-            query: '',
-        }
-    }
-
-    _getTotalPrice() {
-        let totalPrice = 0
-
-        this.state.tableFoods.forEach(function (tableFood) {
-            totalPrice = totalPrice + tableFood.price
-        })
-
-        return totalPrice
-    }
-
-    findFoods(query) {
-        //method called everytime when we change the value of the input
-        if (query === '') {
-            //if the query is null then return blank
-            return [];
-        }
-
-        const { foods } = this.state;
-        //making a case insensitive regular expression to get similar value from the film json
-        const regex = new RegExp(`${query.trim()}`, 'i');
-        //return the filtered film array according the query from the input
-        return foods.filter(food => food.label.search(regex) >= 0);
-    }
-
-    componentDidMount() {
-        getTable(this.props.route.params.id)
-            .then(data => {
-                this.setState({
-                    table: data,
-                    tableFoods: data.foods ? data.foods : [],
-                })
-            })
-
-        getFoods().then(foods => {
-            this.setState({ foods });
-        })
-    }
-
-    _displayColor(type) {
-        let css = {
-            fontWeight: 'bold',
-            flex: 2,
-        }
-
-        switch (type) {
-            case 'Starter':
-                css.color = 'green'
-                return css
-
-            case 'Plat':
-                css.color = 'red'
-                return css
-
-            case 'Dessert':
-                css.color = 'blue'
-                return css
-
-            case 'Boisson':
-                css.color = 'gold'
-                return css
-
-            default:
-                css.color = 'black'
-                return css
-        }
-    }
-
-    _displayTable() {
-        if (this.state.tableFoods && this.state.tableFoods.length > 0) {
-            return (
-                <View style={{ flex: 1 }}>
-                    <View style={styles.table_food_container}>
-                        <FlatList
-                            data={this.state.tableFoods}
-                            keyExtractor={(item, index) => index.toString()}
-                            extraData={this.state.tableFoods}
-                            renderItem={({ item }) => <TableFood food={item} displayColor={this._displayColor} />}
-                        />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={styles.totalPrice}>Total : {this._getTotalPrice() + ' €'}</Text>
-                    </View>
-                </View>
-            )
-        }
-    }
-
-    _displaySubmitButton() {
-        if (this.state.tableFoods && this.state.tableFoods.length > 0) {
-            return (
-                <Button title='Envoyer la suite' onPress={() => {
-                    submitFood(this.state.table).then(table => this.setState({
-                        tableFoods: table.foods
-                    }))
-                }} />
-            )
-        }
-    }
-
-    _addFood(food) {
-        addFood(this.state.table, food).then(foods => {
-            this.setState({ query: '' })
-        })
-    }
-
-    render() {
-        const { query } = this.state;
-        const foods = this.findFoods(query);
-        const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
-
-        return (
-            <View style={styles.main_container}>
-                <View style={styles.acContainerStyle}>
-                    <Autocomplete
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        containerStyle={styles.autocompleteContainer}
-                        //data to show in suggestion
-                        data={foods.length === 1 && comp(query, foods[0].label) ? [] : foods}
-                        value={this.state.query}
-                        /*onchange of the text changing the state of the query which will trigger
-                        the findFilm method to show the suggestions*/
-                        onChangeText={text => this.setState({ query: text })}
-                        placeholder="Ajouter un plat"
-                        renderItem={(data) => (
-                            //you can change the view you want to show in suggestion from here
-                            <TouchableOpacity onPress={() => addFood(this.state.table, data.item).then(foods => {
-                                this.setState({
-                                    query: '',
-                                    tableFoods: this.state.tableFoods.concat([data.item]),
-                                })
-                            })}>
-                                <View style={styles.itemText}>
-                                    <Text style={this._displayColor(data.item.type)}>{data.item.type}</Text>
-                                    <Text style={styles.labelItemText}>{data.item.label}</Text>
-                                    <Text style={styles.priceItemText}>{data.item.price + ' €'}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        )}
-                    />
-                </View>
-                {this._displayTable()}
-                {this._displaySubmitButton()}
-            </View>
-        )
-    }
-}
+import AppContext from '../contexts/AppContext'
 
 const styles = StyleSheet.create({
     totalPrice: {
@@ -229,4 +70,162 @@ const styles = StyleSheet.create({
     },
 })
 
-export default TableDetail
+export default function TableDetail(props) {
+    const empty = ''
+    const [state, setState] = React.useState({
+        table: undefined,
+        tableFoods: [],
+        query: empty,
+    })
+
+    const _getTotalPrice = (state) => {
+        let totalPrice = 0
+
+        state.tableFoods.forEach(function (tableFood) {
+            totalPrice = totalPrice + tableFood.price
+        })
+
+        return totalPrice
+    }
+
+    const findFoods = (query, foods) => {
+        //method called everytime when we change the value of the input
+        if (query === '' || query === undefined) {
+            //if the query is null then return blank
+            return [];
+        }
+
+        //making a case insensitive regular expression to get similar value from the film json
+        const regex = new RegExp(`${query.trim()}`, 'i');
+        //return the filtered film array according the query from the input
+        return foods.filter(food => food.label.search(regex) >= 0);
+    }
+
+    React.useEffect(() => {
+        getTable(props.route.params.id)
+            .then(data => {
+                setState({
+                    table: data,
+                    tableFoods: data.foods ? data.foods : [],
+                    query: '',
+                })
+            })
+    }, [])
+
+
+    const _displayColor = (type) => {
+        let css = {
+            fontWeight: 'bold',
+            flex: 2,
+        }
+
+        switch (type) {
+            case 'Starter':
+                css.color = 'green'
+                return css
+
+            case 'Plat':
+                css.color = 'red'
+                return css
+
+            case 'Dessert':
+                css.color = 'blue'
+                return css
+
+            case 'Boisson':
+                css.color = 'gold'
+                return css
+
+            default:
+                css.color = 'black'
+                return css
+        }
+    }
+
+    const _displayTable = () => {
+        if (state.tableFoods && state.tableFoods.length > 0) {
+            return (
+                <View style={{ flex: 1 }}>
+                    <View style={styles.table_food_container}>
+                        <FlatList
+                            data={state.tableFoods}
+                            keyExtractor={(item, index) => index.toString()}
+                            extraData={state.tableFoods}
+                            renderItem={({ item }) => <TableFood food={item} displayColor={_displayColor} />}
+                        />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.totalPrice}>Total : {_getTotalPrice(state) + ' €'}</Text>
+                    </View>
+                </View>
+            )
+        }
+    }
+
+    const _displaySubmitButton = () => {
+        if (state.tableFoods && state.tableFoods.length > 0) {
+            return (
+                <Button title='Envoyer la suite' onPress={() => {
+                    submitFood(state.table).then(table => setState({
+                        table: state.table,
+                        tableFoods: table.foods,
+                        query: state.query,
+                    }))
+                }} />
+            )
+        }
+    }
+
+    const { query } = state;
+
+    const { foods } = React.useContext(AppContext)
+
+    const filteredfoods = findFoods(query, foods);
+    const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
+
+    const _addFoodToTable = (data) => {
+        addFood(state.table, data.item).then(zob => {
+            setState({
+                table: state.table,
+                tableFoods: state.tableFoods.concat([data.item]),
+                query: '',
+            })
+        })
+    }
+
+    return (
+        <View style={styles.main_container}>
+            <View style={styles.acContainerStyle}>
+                <Autocomplete
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    containerStyle={styles.autocompleteContainer}
+                    //data to show in suggestion
+                    data={filteredfoods.length === 1 && comp(query, filteredfoods[0].label) ? [] : filteredfoods}
+                    value={state.query}
+                    /*onchange of the text changing the state of the query which will trigger
+                    the findFilm method to show the suggestions*/
+                    onChangeText={text => setState({
+                        table: state.table,
+                        tableFoods: state.tableFoods,
+                        query: text 
+                    })}
+                    placeholder="Ajouter un plat"
+                    renderItem={(data) => (
+                        //you can change the view you want to show in suggestion from here
+                        <TouchableOpacity onPress={() => _addFoodToTable(data)}>
+                            <View style={styles.itemText}>
+                                <Text style={_displayColor(data.item.type)}>{data.item.type}</Text>
+                                <Text style={styles.labelItemText}>{data.item.label}</Text>
+                                <Text style={styles.priceItemText}>{data.item.price + ' €'}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                />
+            </View>
+            {_displayTable()}
+            {_displaySubmitButton()}
+        </View>
+    )
+}
+

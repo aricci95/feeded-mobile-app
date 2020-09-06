@@ -10,6 +10,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import io from 'socket.io-client';
 import AppContext from './contexts/AppContext'
+import { getFoods } from './API/client'
 
 const globals = require('./consts')
 
@@ -80,15 +81,24 @@ const styles = StyleSheet.create({
 export default class App extends React.Component {
   constructor(props) {
     super(props)
-    this.socket = io.connect(globals.API_HOST, {
-      transports: ['websocket'],
-      reconnectionAttempts: 15 //Nombre de fois qu'il doit réessayer de se connecter
+    this.state = {
+      socket: io.connect(globals.API_HOST, {
+        transports: ['websocket'],
+        reconnectionAttempts: 15 //Nombre de fois qu'il doit réessayer de se connecter
+      }),
+      foods: [],
+    }
+  }
+
+  componentDidMount() {
+    getFoods().then(foods => {
+      this.setState({ foods: foods });
     })
   }
 
   render() {
     return (
-      <AppContext.Provider value={this.socket}>
+      <AppContext.Provider value={this.state}>
         <NavigationContainer>
           <Tab.Navigator
             screenOptions={({ route }) => ({
