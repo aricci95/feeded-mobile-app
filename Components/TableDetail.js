@@ -90,7 +90,7 @@ class TableDetail extends React.Component {
                     <View style={styles.table_food_container}>
                         <FlatList
                             data={this.state.tableFoods}
-                            keyExtractor={(item, index) => index}
+                            keyExtractor={(item, index) => index.toString()}
                             extraData={this.state.tableFoods}
                             renderItem={({ item }) => <TableFood food={item} displayColor={this._displayColor} />}
                         />

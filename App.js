@@ -2,15 +2,16 @@ import React from 'react';
 import TableListPage from './Components/TableListPage'
 import PreparationListPage from './Components/PreparationListPage'
 import TableDetail from './Components/TableDetail'
-import { StyleSheet, Image } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import io from 'socket.io-client';
+import AppContext from './contexts/AppContext'
 
-const SOCKET_URL = 'http://localhost:3001';
+const globals = require('./consts')
 
 function TableListScreen({ navigation }) {
   return (
@@ -77,37 +78,36 @@ const styles = StyleSheet.create({
 })
 
 export default class App extends React.Component {
-  state = {
-    connected: false
-  };
-
-  socket = io.connect(SOCKET_URL, {
-    transports: ['websocket'],
-    reconnectionAttempts: 15 //Nombre de fois qu'il doit réessayer de se connecter
-  }).on('message', function (message) {
-    console.log('Le serveur a un message pour vous : ' + message.content);
-  })
+  constructor(props) {
+    super(props)
+    this.socket = io.connect(globals.API_HOST, {
+      transports: ['websocket'],
+      reconnectionAttempts: 15 //Nombre de fois qu'il doit réessayer de se connecter
+    })
+  }
 
   render() {
     return (
-      <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color, size }) => {
-              if (route.name === 'Tables') {
-                return <MaterialIcon name="restaurant" size={30} />
-              } else if (route.name === 'Cuisine') {
-                return <MaterialCommunityIcon name="chef-hat" size={30} />
-              } else {
-                return <MaterialCommunityIcon name="beer" size={30} />
-              }
-            },
-          })}>
-          <Tab.Screen name="Tables" component={TableStackScreen} />
-          <Tab.Screen name="Cuisine" component={PreparationStackScreen} />
-          <Tab.Screen name="Bar" component={BarStackScreen} />
-        </Tab.Navigator>
-      </NavigationContainer>
+      <AppContext.Provider value={this.socket}>
+        <NavigationContainer>
+          <Tab.Navigator
+            screenOptions={({ route }) => ({
+              tabBarIcon: ({ focused, color, size }) => {
+                if (route.name === 'Tables') {
+                  return <MaterialIcon name="restaurant" size={30} />
+                } else if (route.name === 'Cuisine') {
+                  return <MaterialCommunityIcon name="chef-hat" size={30} />
+                } else {
+                  return <MaterialCommunityIcon name="beer" size={30} />
+                }
+              },
+            })}>
+            <Tab.Screen name="Tables" component={TableStackScreen} />
+            <Tab.Screen name="Cuisine" component={PreparationStackScreen} />
+            <Tab.Screen name="Bar" component={BarStackScreen} />
+          </Tab.Navigator>
+        </NavigationContainer>
+      </AppContext.Provider>
     );
   }
 

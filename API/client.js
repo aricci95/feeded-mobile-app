@@ -1,4 +1,4 @@
-const API_HOST = 'https://feeded-api.herokuapp.com'
+const globals = require('../consts')
 
 let email = 'aricci95@gmail.com'
 let token = '$2a$10$XJiyb8kTHeKFqgYKrwoOI.U2zo.zkbfPy460YAiJc8nDxauIEq.Du'
@@ -15,7 +15,7 @@ export function getTables() {
         headers,
     };
 
-    const url = API_HOST + '/tables';
+    const url = globals.API_HOST + '/tables';
 
     return fetch(url, requestOptions)
         .then(response => response.json())
@@ -28,7 +28,7 @@ export function getTable(id) {
         headers,
     };
 
-    const url = API_HOST + '/tables/' + id;
+    const url = globals.API_HOST + '/tables/' + id;
 
     return fetch(url, requestOptions)
         .then(response => response.json())
@@ -42,7 +42,7 @@ export function getFoods() {
         headers,
     };
 
-    const url = API_HOST + '/foods';
+    const url = globals.API_HOST + '/foods';
 
     return fetch(url, requestOptions)
         .then(response => response.json())
@@ -55,7 +55,7 @@ export function searchFoods(label) {
         headers,
     };
 
-    const url = API_HOST + '/foods/search?label=' + label;
+    const url = globals.API_HOST + '/foods/search?label=' + label;
 
     return fetch(url, requestOptions)
         .then(response => response.json())
@@ -69,7 +69,7 @@ export function addFood(table, food) {
         body: JSON.stringify(food),
     };
 
-    const url = API_HOST + '/tables/' + table._id;
+    const url = globals.API_HOST + '/tables/' + table._id;
 
     return fetch(url, requestOptions)
         .then(response => response.json())
@@ -82,7 +82,7 @@ export function submitFood(table) {
         headers,
     };
 
-    const url = API_HOST + '/tables/' + table._id + '/submit';
+    const url = globals.API_HOST + '/tables/' + table._id + '/submit';
 
     return fetch(url, requestOptions)
         .then(response => response.json())
@@ -95,7 +95,7 @@ export function getPreparations(filter = '') {
         headers,
     };
 
-    let url = API_HOST + '/preparations';
+    let url = globals.API_HOST + '/preparations';
 
     if (filter) {
         url = url + '?filter=' + filter

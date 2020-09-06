@@ -2,39 +2,9 @@ import React from 'react'
 import { StyleSheet, FlatList, View } from 'react-native'
 import { getPreparations } from '../API/client'
 import PreparationItem from './PreparationItem'
-
-class PreparationListPage extends React.Component {
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            preparations: [],
-        }
-    }
-
-    componentDidMount() {
-        getPreparations(this.props.filter)
-            .then(data => {
-                this.setState({
-                    preparations: data,
-                })
-            })
-    }
-
-    render() {
-        return (
-            <View style={styles.main_container}>
-                <FlatList
-                    contentContainerStyle={styles.flat_list}
-                    data={this.state.preparations}
-                    keyExtractor={(item, index) => index.toString()}
-                    extraData={this.state.preparations}
-                    renderItem={({ item }) => <PreparationItem preparation={item} />}
-                />
-            </View>
-        )
-    }
-}
+import AppContext from '../contexts/AppContext'
+import io from 'socket.io-client';
+const globals = require('../consts')
 
 const styles = StyleSheet.create({
     main_container: {
@@ -54,6 +24,37 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     }
-});
+})
 
-export default PreparationListPage
+export default function PreparationListPage(props) {
+    const [state, setState] = React.useState({
+        preparations: [],
+    })
+
+    const _loadPreparations = (notification = null) => {
+        getPreparations(props.filter)
+            .then(data => {
+                setState({
+                    preparations: data,
+                })
+            })
+    }
+
+    const socket = React.useContext(AppContext);
+
+    socket.on('notification', _loadPreparations);
+
+    React.useEffect(() => _loadPreparations(), [])
+
+    return (
+        <View style={styles.main_container}>
+            <FlatList
+                contentContainerStyle={styles.flat_list}
+                data={state.preparations}
+                keyExtractor={(item, index) => index.toString()}
+                extraData={state.preparations}
+                renderItem={({ item }) => <PreparationItem preparation={item} />}
+            />
+        </View>
+    )
+}
