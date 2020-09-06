@@ -10,10 +10,14 @@ class PreparationItem extends React.Component {
         }
     }
 
+    componentDidMount() {
+        console.log('FLAT LIST ITEM MOUNTED')
+    }
+
     render() {
         const { preparation } = this.state
 
-        if (preparation && preparation.foods.length) {
+        if (preparation && preparation.foods && preparation.foods.length) {
             return (
                 <TouchableOpacity
                     onLongPress={() => {

@@ -1,8 +1,10 @@
 import React from 'react'
-import { StyleSheet, FlatList, View } from 'react-native'
+import { StyleSheet, FlatList, View, Text } from 'react-native'
 import { getPreparations } from '../API/client'
 import PreparationItem from './PreparationItem'
 import AppContext from '../contexts/AppContext'
+
+const globals = require('../consts')
 
 const styles = StyleSheet.create({
     main_container: {
@@ -29,7 +31,11 @@ export default function PreparationListPage(props) {
         preparations: [],
     })
 
-    const _loadPreparations = (notification = null) => {
+    const _loadPreparations = () => {
+        console.log('LOAD FILTER ' + props.filter)
+
+        setState({preparations: []})
+
         getPreparations(props.filter)
             .then(data => {
                 setState({
@@ -38,11 +44,14 @@ export default function PreparationListPage(props) {
             })
     }
 
-    const _triggerRendering = () => {
-        setState({ preparations: [1] })
+    const _triggerRendering = (notification) => {
+        console.log(notification)
+        if (notification.type === globals.NOTIFICATION_TYPE_FOOD_SUBMITTED) {
+            _loadPreparations()
+        }
     }
 
-    const socket = React.useContext(AppContext);
+    const { socket } = React.useContext(AppContext);
 
     socket.on('notification', _triggerRendering);
 
@@ -53,8 +62,8 @@ export default function PreparationListPage(props) {
             <FlatList
                 contentContainerStyle={styles.flat_list}
                 data={state.preparations}
-                keyExtractor={(item, index) => index.toString()}
-                extraData={state.preparations}
+                keyExtractor={(item, index) => item._id.toString()}
+                extraData={state}
                 renderItem={({ item }) => <PreparationItem preparation={item} />}
             />
         </View>
