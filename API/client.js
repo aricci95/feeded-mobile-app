@@ -105,3 +105,26 @@ export function getPreparations(filter = '') {
         .then(response => response.json())
         .catch((error) => console.error(error));
 }
+
+export function submitPreparations(table) {
+    let foodIds = []
+
+    for (var index in table.foods) {
+        foodIds.push(table.foods[index].id)
+    } 
+
+    const requestOptions = {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+            foodIds: foodIds,
+            status: globals.PREPARATION_STATUS_DONE,
+        }),
+    };
+
+    const url = globals.API_HOST + '/preparations/' + table._id;
+
+    return fetch(url, requestOptions)
+        .then(response => response.json())
+        .catch((error) => console.error(error));
+}

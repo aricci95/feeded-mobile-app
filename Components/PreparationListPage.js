@@ -40,9 +40,13 @@ export default function PreparationListPage(props) {
             })
     }
 
+    const _triggerRendering = () => {
+        setState({ preparations: [1] })
+    }
+
     const socket = React.useContext(AppContext);
 
-    socket.on('notification', _loadPreparations);
+    socket.on('notification', _triggerRendering);
 
     React.useEffect(() => _loadPreparations(), [])
 

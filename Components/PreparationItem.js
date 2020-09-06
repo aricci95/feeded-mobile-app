@@ -1,27 +1,38 @@
 import React from 'react'
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { submitPreparations } from '../API/client'
 
 class PreparationItem extends React.Component {
-    handleDoubleClick = () => {
-        console.log(' Double Long Pressed');
-    };
+    constructor(props) {
+        super(props)
+        this.state = {
+            preparation: this.props.preparation,
+        }
+    }
 
     render() {
-        const { preparation } = this.props
+        const { preparation } = this.state
 
-        return (
-            <TouchableOpacity
-                onLongPress={this.handleDoubleClick}
-                style={styles.preparation_item_container}
-            >
-                <View style={styles.preparation_container}>
-                    <Text style={styles.title_text}>{'Table ' + preparation.number}</Text>
-                    {preparation.foods.map(({ label, id }) => (
-                        <Text style={styles.preparation_text} key={id}>{label}</Text>
-                    ))}
-                </View>
-            </TouchableOpacity>
-        )
+        if (preparation && preparation.foods.length) {
+            return (
+                <TouchableOpacity
+                    onLongPress={() => {
+                        submitPreparations(preparation)
+                        this.setState({preparation: undefined})
+                    }}
+                    style={styles.preparation_item_container}
+                >
+                    <View style={styles.preparation_container}>
+                        <Text style={styles.title_text}>{'Table ' + preparation.number}</Text>
+                        {preparation.foods.map(({ label, id }) => (
+                            <Text style={styles.preparation_text} key={id}>{label}</Text>
+                        ))}
+                    </View>
+                </TouchableOpacity>
+            )
+        } else {
+            return null
+        }
     }
 }
 
